@@ -1,4 +1,4 @@
-# 智能问答小程序
+# miniChat - 智能问答小程序
 
 一个基于 uni-app + Vue 3 + uview-plus 开发的智能问答小程序，提供AI助手问答服务。
 
