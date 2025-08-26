@@ -1,44 +1,129 @@
 <template>
-	<view class="login-container">
+	<view class="login-container" :style="{ background: themeStore.themeConfig.backgroundGradient }">
 		<!-- 背景装饰 -->
 		<view class="bg-decoration">
 			<view class="circle circle-1"></view>
 			<view class="circle circle-2"></view>
 			<view class="circle circle-3"></view>
+			<view class="circle circle-4"></view>
+			<view class="floating-shapes">
+				<view class="shape shape-1"></view>
+				<view class="shape shape-2"></view>
+				<view class="shape shape-3"></view>
+			</view>
+			<view class="particles">
+				<view class="particle" v-for="i in 20" :key="i"></view>
+			</view>
 		</view>
 
-		<!-- 登录表单 -->
-		<view class="login-form">
+		<!-- 登录内容 -->
+		<view class="login-content">
+			<!-- Logo区域 -->
 			<view class="logo-section">
-				<u-image src="/static/logo.png" width="120" height="120" shape="circle"></u-image>
+				<view class="logo-container">
+					<u-image src="/static/logo.png" width="140" height="140" shape="circle"></u-image>
+					<view class="logo-glow"></view>
+					<view class="logo-ring"></view>
+				</view>
 				<text class="app-title">智能问答</text>
 				<text class="app-subtitle">AI助手，智慧解答</text>
+				<view class="app-features">
+					<view class="feature-tag">
+						<u-icon name="star" size="18" color="#FFD700"></u-icon>
+						<text>智能对话</text>
+					</view>
+					<view class="feature-tag">
+						<u-icon name="shield" size="18" color="#4CAF50"></u-icon>
+						<text>安全可靠</text>
+					</view>
+					<view class="feature-tag">
+						<u-icon name="clock" size="18" color="#2196F3"></u-icon>
+						<text>24小时在线</text>
+					</view>
+				</view>
 			</view>
 
-			<view class="form-section">
-				<u-form :model="formData" ref="formRef" label-width="80px" :rules="rules">
-					<u-form-item label="用户名" prop="username">
-						<u-input v-model="formData.username" placeholder="请输入用户名" :border="false" prefixIcon="account"></u-input>
-					</u-form-item>
+			<!-- 登录区域 -->
+			<view class="login-section" :style="{ 
+				background: themeStore.themeConfig.cardBackgroundTransparent,
+				boxShadow: themeStore.themeConfig.shadow
+			}">
+				<view class="welcome-text">
+					<text class="welcome-title" :style="{ color: themeStore.themeConfig.textPrimary }">欢迎使用</text>
+					<text class="welcome-desc" :style="{ color: themeStore.themeConfig.textSecondary }">一键登录，开启智能对话之旅</text>
+				</view>
+				
+				<view class="login-actions">
+					<!-- 开发调试按钮 -->
+					<u-button 
+						type="primary" 
+						text="开发调试登录" 
+						:loading="userStore.loading" 
+						@click="handleDevLogin" 
+						shape="circle"
+						size="large"
+						class="dev-login-btn"
+						icon="play-circle-fill"
+						:style="{ background: themeStore.themeConfig.primaryGradient }"
+					></u-button>
+					
+					<view class="divider">
+						<view class="divider-line" :style="{ background: `linear-gradient(90deg, transparent, ${themeStore.themeConfig.textTertiary}, transparent)` }"></view>
+						<text class="divider-text" :style="{ color: themeStore.themeConfig.textTertiary }">正式登录方式（已注释）</text>
+						<view class="divider-line" :style="{ background: `linear-gradient(90deg, transparent, ${themeStore.themeConfig.textTertiary}, transparent)` }"></view>
+					</view>
 
-					<u-form-item label="密码" prop="password">
-						<u-input v-model="formData.password" placeholder="请输入密码" :border="false" prefixIcon="lock"
-							:password="!showPassword" :suffixIcon="showPassword ? 'eye' : 'eye-off'"
-							@suffixIconClick="togglePassword"></u-input>
-					</u-form-item>
-				</u-form>
-
-				<view class="form-actions">
-					<u-button type="primary" text="登录" :loading="loading" @click="handleLogin" shape="circle"
-						size="large"></u-button>
-
-					<u-button type="success" text="微信登录" :loading="wxLoading" @click="handleWxLogin" shape="circle" size="large"
-						icon="weixin-fill"></u-button>
+					<!-- 注释掉的微信一键登录按钮 -->
+					<!-- 
+					<button 
+						class="wx-phone-login-btn"
+						open-type="getPhoneNumber"
+						@getphonenumber="handleGetPhoneNumber"
+						:loading="userStore.loading"
+						:disabled="!agreed"
+					>
+						<u-icon name="weixin-fill" size="20" color="#fff"></u-icon>
+						<text>微信一键登录</text>
+					</button>
+					-->
+					
+					<!-- 注释掉的微信登录按钮 -->
+					<!--
+					<u-button 
+						type="success" 
+						text="微信登录" 
+						:loading="userStore.loading" 
+						@click="handleWxLogin" 
+						shape="circle" 
+						size="large"
+						icon="weixin-fill"
+						class="wx-btn"
+						:disabled="!agreed"
+					></u-button>
+					-->
+					
+					<!-- 显示注释状态的提示 -->
+					<view class="commented-login-tips" :style="{ 
+						background: themeStore.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(153, 153, 153, 0.1)',
+						border: `1rpx dashed ${themeStore.themeConfig.textTertiary}`
+					}">
+						<u-icon name="info-circle" size="16" :color="themeStore.themeConfig.textTertiary"></u-icon>
+						<text class="tip-text" :style="{ color: themeStore.themeConfig.textTertiary }">微信登录功能已注释，用于开发调试</text>
+					</view>
 				</view>
 
-				<view class="register-link">
-					<text>还没有账号？</text>
-					<u-link text="立即注册" @click="goToRegister"></u-link>
+				<view class="agreement-section">
+					<view class="agreement-checkbox" @click="toggleAgreement">
+						<u-icon 
+							:name="agreed ? 'checkmark-circle-fill' : 'checkmark-circle'" 
+							size="20" 
+							:color="agreed ? themeStore.themeConfig.primary : themeStore.themeConfig.textTertiary"
+						></u-icon>
+						<text class="agreement-text" :style="{ color: themeStore.themeConfig.textSecondary }">我已阅读并同意</text>
+						<text class="agreement-link" :style="{ color: themeStore.themeConfig.primary }">《用户协议》</text>
+						<text class="agreement-text" :style="{ color: themeStore.themeConfig.textSecondary }">和</text>
+						<text class="agreement-link" :style="{ color: themeStore.themeConfig.primary }">《隐私政策》</text>
+					</view>
 				</view>
 			</view>
 		</view>
@@ -46,128 +131,146 @@
 </template>
 
 <script setup>
-	import {
-		ref,
-		reactive
-	} from 'vue'
+	import { ref, onMounted } from 'vue'
+	import { useUserStore } from '@/stores/user'
+	import { useThemeStore } from '@/stores/theme'
+
+	// 使用stores
+	const userStore = useUserStore()
+	const themeStore = useThemeStore()
 
 	// 响应式数据
-	const formRef = ref(null)
-	const loading = ref(false)
-	const wxLoading = ref(false)
-	const showPassword = ref(false)
+	const agreed = ref(false)
 
-	const formData = reactive({
-		username: '',
-		password: ''
-	})
-
-	// 表单验证规则
-	const rules = {
-		username: [{
-				required: true,
-				message: '请输入用户名',
-				trigger: 'blur'
-			},
-			{
-				min: 3,
-				max: 20,
-				message: '用户名长度在3-20个字符',
-				trigger: 'blur'
-			}
-		],
-		password: [{
-				required: true,
-				message: '请输入密码',
-				trigger: 'blur'
-			},
-			{
-				min: 6,
-				max: 20,
-				message: '密码长度在6-20个字符',
-				trigger: 'blur'
-			}
-		]
+	// 切换协议同意状态
+	const toggleAgreement = () => {
+		agreed.value = !agreed.value
 	}
 
-	// 切换密码显示
-	const togglePassword = () => {
-		showPassword.value = !showPassword.value
-	}
-
-	// 处理登录
-	const handleLogin = async () => {
-		try {
-			// 表单验证
-			const valid = await formRef.value.validate()
-			if (!valid) return
-
-			loading.value = true
-
-			// 模拟登录请求
-			await new Promise(resolve => setTimeout(resolve, 1500))
-
-			// 登录成功，跳转到首页
-			uni.switchTab({
-				url: '/pages/home/index'
-			})
-
+	// 开发调试登录
+	const handleDevLogin = async () => {
+		if (!agreed.value) {
 			uni.showToast({
-				title: '登录成功',
+				title: '请先同意用户协议',
+				icon: 'none'
+			})
+			return
+		}
+
+		try {
+			// 模拟登录过程
+			userStore.loading = true
+			
+			// 模拟网络延迟
+			await new Promise(resolve => setTimeout(resolve, 1000))
+			
+			// 设置模拟用户信息
+			const mockUserInfo = {
+				name: '开发测试用户',
+				avatar: 'https://picsum.photos/200/200?random=1',
+				email: 'dev@example.com',
+				openid: 'dev_openid_123',
+				unionid: 'dev_unionid_123',
+				phone: '138****8888',
+				isLogin: true
+			}
+			
+			userStore.setUserInfo(mockUserInfo)
+			
+			uni.showToast({
+				title: '开发调试登录成功',
 				icon: 'success'
 			})
-
+			
+			// 延迟跳转，让用户看到成功提示
+			setTimeout(() => {
+				uni.navigateTo({
+					url: '/pages/home/index'
+				})
+			}, 1000)
+			
 		} catch (error) {
+			console.error('开发调试登录错误:', error)
 			uni.showToast({
 				title: '登录失败',
 				icon: 'error'
 			})
 		} finally {
-			loading.value = false
+			userStore.loading = false
 		}
 	}
 
-	// 处理微信登录
+	// 注释掉的微信登录方法
+	/*
 	const handleWxLogin = async () => {
-		try {
-			wxLoading.value = true
-
-			// 模拟微信登录
-			await new Promise(resolve => setTimeout(resolve, 2000))
-
-			// 登录成功，跳转到首页
-			uni.switchTab({
-				url: '/pages/home/index'
-			})
-
+		if (!agreed.value) {
 			uni.showToast({
-				title: '微信登录成功',
-				icon: 'success'
+				title: '请先同意用户协议',
+				icon: 'none'
 			})
+			return
+		}
+
+		try {
+			const success = await userStore.wxLogin()
+			
+			if (success) {
+				// 登录成功，跳转到首页
+				uni.navigateTo({
+					url: '/pages/home/index'
+				})
+			}
 
 		} catch (error) {
-			uni.showToast({
-				title: '微信登录失败',
-				icon: 'error'
-			})
-		} finally {
-			wxLoading.value = false
+			console.error('微信登录错误:', error)
 		}
 	}
+	*/
 
-	// 跳转到注册页面
-	const goToRegister = () => {
-		uni.showToast({
-			title: '注册功能开发中',
-			icon: 'none'
-		})
+	// 注释掉的微信一键登录获取手机号方法
+	/*
+	const handleGetPhoneNumber = async (e) => {
+		if (!agreed.value) {
+			uni.showToast({
+				title: '请先同意用户协议',
+				icon: 'none'
+			})
+			return
+		}
+
+		try {
+			const success = await userStore.handleGetPhoneNumber(e)
+			if (success) {
+				uni.navigateTo({
+					url: '/pages/home/index'
+				})
+			}
+		} catch (error) {
+			console.error('微信一键登录错误:', error)
+		}
 	}
+	*/
+
+	// 页面加载时检查登录状态
+	onMounted(() => {
+		// 初始化主题
+		themeStore.initTheme()
+		
+		// 获取本地存储的用户信息
+		userStore.getUserInfo()
+		
+		// 如果已经登录，直接跳转到首页
+		if (userStore.isLoggedIn) {
+			uni.navigateTo({
+				url: '/pages/home/index'
+			})
+		}
+	})
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 	.login-container {
 		min-height: 100vh;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 		position: relative;
 		overflow: hidden;
 	}
@@ -212,15 +315,105 @@
 		animation-delay: 4s;
 	}
 
-	@keyframes float {
-		0%, 100% { transform: translateY(0px); }
-		50% { transform: translateY(-20px); }
+	.circle-4 {
+		width: 80rpx;
+		height: 80rpx;
+		top: 30%;
+		left: 20%;
+		animation-delay: 1s;
 	}
 
-	.login-form {
+	.floating-shapes {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		
+		.shape {
+			position: absolute;
+			background: rgba(255, 255, 255, 0.05);
+			animation: rotate 20s linear infinite;
+		}
+		
+		.shape-1 {
+			width: 60rpx;
+			height: 60rpx;
+			top: 15%;
+			left: 10%;
+			clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+		}
+		
+		.shape-2 {
+			width: 40rpx;
+			height: 40rpx;
+			top: 70%;
+			right: 15%;
+			clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+		}
+		
+		.shape-3 {
+			width: 50rpx;
+			height: 50rpx;
+			bottom: 30%;
+			left: 60%;
+			clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+		}
+	}
+
+	.particles {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		
+		.particle {
+			position: absolute;
+			width: 4rpx;
+			height: 4rpx;
+			background: rgba(255, 255, 255, 0.6);
+			border-radius: 50%;
+			animation: particleFloat 8s linear infinite;
+			
+			@for $i from 1 through 20 {
+				&:nth-child(#{$i}) {
+					left: random(100) * 1%;
+					top: random(100) * 1%;
+					animation-delay: random(8) * 1s;
+					animation-duration: (random(4) + 4) * 1s;
+				}
+			}
+		}
+	}
+
+	@keyframes float {
+		0%, 100% { transform: translateY(0px) rotate(0deg); }
+		50% { transform: translateY(-20px) rotate(180deg); }
+	}
+
+	@keyframes rotate {
+		from { transform: rotate(0deg); }
+		to { transform: rotate(360deg); }
+	}
+
+	@keyframes particleFloat {
+		0% {
+			transform: translateY(100vh) scale(0);
+			opacity: 0;
+		}
+		10% {
+			opacity: 1;
+		}
+		90% {
+			opacity: 1;
+		}
+		100% {
+			transform: translateY(-100rpx) scale(1);
+			opacity: 0;
+		}
+	}
+
+	.login-content {
 		position: relative;
 		z-index: 1;
-		padding: 100rpx 60rpx;
+		padding: 80rpx 60rpx;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -231,60 +424,219 @@
 		text-align: center;
 		margin-bottom: 80rpx;
 		animation: fadeInDown 1s ease-out;
+		
+		.logo-container {
+			position: relative;
+			display: inline-block;
+			margin-bottom: 40rpx;
+			
+			.logo-glow {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				width: 160rpx;
+				height: 160rpx;
+				background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+				border-radius: 50%;
+				animation: pulse 2s ease-in-out infinite;
+			}
+			
+			.logo-ring {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				width: 180rpx;
+				height: 180rpx;
+				border: 2rpx solid rgba(255,255,255,0.2);
+				border-radius: 50%;
+				animation: rotate 10s linear infinite;
+			}
+		}
+		
+		.app-title {
+			display: block;
+			font-size: 60rpx;
+			font-weight: 700;
+			color: #fff;
+			margin: 30rpx 0 10rpx;
+			text-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.3);
+			letter-spacing: 2rpx;
+		}
+
+		.app-subtitle {
+			display: block;
+			font-size: 32rpx;
+			color: rgba(255, 255, 255, 0.9);
+			letter-spacing: 2rpx;
+			margin-bottom: 50rpx;
+		}
+		
+		.app-features {
+			display: flex;
+			justify-content: center;
+			gap: 30rpx;
+			flex-wrap: wrap;
+			
+			.feature-tag {
+				display: flex;
+				align-items: center;
+				gap: 8rpx;
+				padding: 12rpx 20rpx;
+				background: rgba(255, 255, 255, 0.15);
+				backdrop-filter: blur(10rpx);
+				border-radius: 25rpx;
+				border: 1rpx solid rgba(255, 255, 255, 0.2);
+				
+				text {
+					font-size: 24rpx;
+					color: rgba(255, 255, 255, 0.9);
+					font-weight: 500;
+				}
+			}
+		}
 	}
 
-	.app-title {
-		display: block;
-		font-size: 56rpx;
-		font-weight: bold;
-		color: #fff;
-		margin: 30rpx 0 10rpx;
-		text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
-	}
-
-	.app-subtitle {
-		display: block;
-		font-size: 32rpx;
-		color: rgba(255, 255, 255, 0.9);
-		letter-spacing: 2rpx;
-	}
-
-	.form-section {
-		background: rgba(255, 255, 255, 0.95);
-		border-radius: 24rpx;
+	.login-section {
+		border-radius: 32rpx;
 		padding: 60rpx 40rpx;
-		backdrop-filter: blur(20rpx);
-		box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+		border: 1rpx solid rgba(255, 255, 255, 0.2);
 		animation: fadeInUp 1s ease-out 0.3s both;
-	}
-
-	.form-actions {
-		margin-top: 60rpx;
-	}
-
-	.form-actions .u-button {
-		margin-bottom: 30rpx;
-		border-radius: 50rpx;
-		box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
-		transition: all 0.3s ease;
-	}
-
-	.form-actions .u-button:active {
-		transform: translateY(2rpx);
-		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
-	}
-
-	.register-link {
-		text-align: center;
-		margin-top: 40rpx;
-		font-size: 28rpx;
-		color: #666;
-	}
-
-	.register-link .u-link {
-		margin-left: 10rpx;
-		color: #667eea;
-		font-weight: 500;
+		
+		.welcome-text {
+			text-align: center;
+			margin-bottom: 50rpx;
+			
+			.welcome-title {
+				display: block;
+				font-size: 36rpx;
+				font-weight: 600;
+				margin-bottom: 12rpx;
+			}
+			
+			.welcome-desc {
+				font-size: 28rpx;
+				line-height: 1.5;
+			}
+		}
+		
+		.login-actions {
+			margin-bottom: 40rpx;
+			
+			.dev-login-btn {
+				border-radius: 50rpx;
+				box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.3);
+				transition: all 0.3s ease;
+				border: none;
+				font-size: 32rpx;
+				font-weight: 600;
+				margin-bottom: 30rpx;
+				
+				&:active {
+					transform: translateY(2rpx);
+					box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.4);
+				}
+			}
+			
+			.divider {
+				display: flex;
+				align-items: center;
+				margin: 30rpx 0;
+				
+				.divider-line {
+					flex: 1;
+					height: 1rpx;
+				}
+				
+				.divider-text {
+					margin: 0 20rpx;
+					font-size: 26rpx;
+				}
+			}
+			
+			.commented-login-tips {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 8rpx;
+				padding: 20rpx;
+				border-radius: 16rpx;
+				
+				.tip-text {
+					font-size: 26rpx;
+				}
+			}
+			
+			.wx-phone-login-btn {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 10rpx;
+				width: 100%;
+				padding: 24rpx 40rpx;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				border-radius: 50rpx;
+				border: none;
+				font-size: 32rpx;
+				font-weight: 600;
+				color: #fff;
+				box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.3);
+				transition: all 0.3s ease;
+				margin-bottom: 30rpx;
+				
+				&:active {
+					transform: translateY(2rpx);
+					box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.4);
+				}
+				
+				&:disabled {
+					background: #ccc;
+					box-shadow: none;
+					opacity: 0.6;
+				}
+			}
+			
+			.wx-btn {
+				border-radius: 50rpx;
+				box-shadow: 0 8rpx 32rpx rgba(76, 175, 80, 0.3);
+				transition: all 0.3s ease;
+				background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+				border: none;
+				font-size: 32rpx;
+				font-weight: 600;
+				
+				&:active {
+					transform: translateY(2rpx);
+					box-shadow: 0 4rpx 16rpx rgba(76, 175, 80, 0.4);
+				}
+			}
+		}
+		
+		.agreement-section {
+			text-align: center;
+			
+			.agreement-checkbox {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 8rpx;
+				flex-wrap: wrap;
+				
+				.agreement-text {
+					font-size: 26rpx;
+				}
+				
+				.agreement-link {
+					font-size: 26rpx;
+					font-weight: 500;
+					
+					&:active {
+						opacity: 0.7;
+					}
+				}
+			}
+		}
 	}
 
 	@keyframes fadeInDown {
@@ -306,6 +658,17 @@
 		to {
 			opacity: 1;
 			transform: translateY(0);
+		}
+	}
+	
+	@keyframes pulse {
+		0%, 100% { 
+			opacity: 0.3;
+			transform: translate(-50%, -50%) scale(1);
+		}
+		50% { 
+			opacity: 0.6;
+			transform: translate(-50%, -50%) scale(1.1);
 		}
 	}
 </style>

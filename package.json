@@ -1,0 +1,36 @@
+{
+  "name": "minichat",
+  "version": "2.0.0",
+  "description": "智能问答小程序",
+  "main": "main.js",
+  "scripts": {
+    "dev:mp-weixin": "uni build --watch --platform mp-weixin",
+    "dev:h5": "uni build --watch --platform h5",
+    "dev:app": "uni build --watch --platform app",
+    "build:mp-weixin": "uni build --platform mp-weixin",
+    "build:h5": "uni build --platform h5",
+    "build:app": "uni build --platform app",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "uni-app",
+    "vue3",
+    "pinia",
+    "chat",
+    "ai",
+    "wechat",
+    "miniprogram"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "pinia": "^2.1.7"
+  },
+  "devDependencies": {
+    "sass": "^1.69.5",
+    "sass-loader": "^13.3.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
